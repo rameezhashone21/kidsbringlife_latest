@@ -81,11 +81,10 @@ class EventController extends Controller
    */
     public function destroy($id)
     {
-        $event_edit = Event::find($id);
         $event = Event::where('id',$id)->get();
         if(count($event) > 0){
             Event_user::where('event_id',$id)->delete();
-            $event_edit->delete();
+            Event::where('id',$id)->delete();
             return response(["Data"=>$event, 'statusCode' => '200', 'message' => 'Event Deleted Successfully'], 201);
         }
         else{
