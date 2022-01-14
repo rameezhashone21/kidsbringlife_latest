@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 use App\Models\Event;
+use App\Models\Event_user;
 use DB;
 
 class EventController extends Controller
@@ -20,7 +21,7 @@ class EventController extends Controller
     {
         $events = Event::all();
         if(count($events) > 0){
-            return response(["Data"=>$locations, 'statusCode' => '200', 'message' => 'All Events'], 201);
+            return response(["Data"=>$events, 'statusCode' => '200', 'message' => 'All Events'], 201);
         }
         else{
             return response(['statusCode' => '404', 'message' => 'No Data Found'], 404);
@@ -36,6 +37,7 @@ class EventController extends Controller
    */
     public function store(Request $request)
     {
+
         $data = $request->all();
 
         $validator = Validator::make($data, [
@@ -46,11 +48,22 @@ class EventController extends Controller
             'meal_type' => 'required',
         ]);
 
+
         if ($validator->fails()) {
             return response(['error' => $validator->errors(), 'Validation Error']);
         }
-
+        
         $event = Event::create($data);
+
+        $last_inserted_id=Event::orderBy('id','desc')->value('id');
+
+        foreach($request->user_id as $user_ids)
+        {
+            $event_user = new Event_user();
+            $event_user->event_id = $last_inserted_id;
+            $event_user->user_id = $user_ids;
+            $event_user->save();
+        }
 
         if(isset($event)){
             return response(["Data"=>$event, 'statusCode' => '200', 'message' => 'Event Created Successfully'], 201);
@@ -71,6 +84,7 @@ class EventController extends Controller
         $event_edit = Event::find($id);
         $event = Event::where('id',$id)->get();
         if(count($event) > 0){
+            Event_user::where('event_id',$id)->delete();
             $event_edit->delete();
             return response(["Data"=>$event, 'statusCode' => '200', 'message' => 'Event Deleted Successfully'], 201);
         }
@@ -129,6 +143,17 @@ class EventController extends Controller
             $event_edit->end_date = $request->get('end_date');
             $event_edit->meal_type = $request->get('meal_type');
             $event_edit->save();
+
+            Event_user::where('event_id',$id)->delete();
+
+            foreach($request->user_id as $user_ids)
+            {
+                $event_user = new Event_user();
+                $event_user->event_id = $id;
+                $event_user->user_id = $user_ids;
+                $event_user->save();
+            }
+
             return response(["Data"=>$event_edit, 'statusCode' => '200', 'message' => 'Event Updated Successfully'], 201);
         }
         else{
