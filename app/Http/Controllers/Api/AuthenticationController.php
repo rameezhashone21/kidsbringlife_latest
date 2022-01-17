@@ -56,8 +56,8 @@ class AuthenticationController extends Controller
             return response()->json([$success, 'User logged In successfully.'], 200);
         } 
         else{ 
-            $hello=back()->withError($exception->getMessage());
-            return $hello;
+            
+            return "message:unauthorize";
         } 
     }
 }
