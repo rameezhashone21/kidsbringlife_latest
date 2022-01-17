@@ -190,7 +190,7 @@ class UserController extends Controller
   public function destroy($id)
   {
 
-    // delete user profile image
+    // delete user profile image from database
     $user = User::where('id', $id)->first();
 
     if($user->roles[0]->level == 2) {
