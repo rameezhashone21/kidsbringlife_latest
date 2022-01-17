@@ -57,7 +57,8 @@ class AuthenticationController extends Controller
         } 
         else{ 
             
-            return "message:unauthorize";
+            return response(["message" => 'Unauthenticated.'], 401);
+
         } 
     }
 }
