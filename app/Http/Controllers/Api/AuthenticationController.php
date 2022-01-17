@@ -57,7 +57,7 @@ class AuthenticationController extends Controller
         } 
         else{ 
             
-            return response(["error"=>"true","message" => 'Unauthenticated.'], 401);
+            return response(["message" => 'Invalid Email or Password.'], 401);
 
         } 
     }
