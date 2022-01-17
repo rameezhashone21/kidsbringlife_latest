@@ -56,7 +56,7 @@ class AuthenticationController extends Controller
             return response()->json([$success, 'User logged In successfully.'], 200);
         } 
         else{ 
-            return response()->json(['error'=>'Unauthorised'], 419);
+            return response()->json(['statusCode'=>'419','message' =>'Unauthorized'], 419);
         } 
     }
 }
