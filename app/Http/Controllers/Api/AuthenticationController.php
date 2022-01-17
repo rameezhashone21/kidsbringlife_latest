@@ -43,13 +43,17 @@ class AuthenticationController extends Controller
     public function login(Request $request)
     {
         if(Auth::attempt(['email' => $request->email, 'password' => $request->password])){ 
-            $user = Auth::user(); 
+            $user = Auth::user();
+            if($user->roles[0]->level != 2) {
+                return response()->json(['error'=>'Unauthorised', 'message' =>'You are not an Admin User'], 419);
+            }
             $success['token'] =  $user->createToken('MyApp')-> accessToken; 
             $success['id'] =  $user->id;
             $success['name'] =  $user->name;
-            $success['role'] =  DB::table('role_users')->where('user_id', $user->id)->value('role_id');
+            $success['email'] =  $user->email;
+            $success['photo'] =  $user->profile_photo;
    
-            return response()->json([$success, 'User login successfully.'], 200);
+            return response()->json([$success, 'User logged In successfully.'], 200);
         } 
         else{ 
             return response()->json(['error'=>'Unauthorised'], 419);

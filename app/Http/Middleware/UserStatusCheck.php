@@ -19,11 +19,10 @@ class UserStatusCheck
      */
     public function handle(Request $request, Closure $next)
     {
-        $user_id = Auth::user()->id;	
-        $role_id = DB::table('role_users')->where('user_id',$user_id)->value('role_id');
-        
-        if ($role_id=="1") {
-             return $next($request);
+       
+        $user = Auth::user();
+        if($user->roles[0]->level == 2) {
+            return $next($request);
         }
 
         return response()->json(['You are Not Allowed to Access this Page.'], 501);
