@@ -65,7 +65,7 @@ class LocationController extends Controller
     {
         $location = Location::where('id', $id)->get();
         if (count($location) > 0) {
-            $location->delete();
+            Location::where('id', $id)->delete();
             return response(["Data" => $location, 'statusCode' => '200', 'message' => 'Location Deleted Successfully'], 201);
         } else {
             return response(["Data" => $location, 'statusCode' => '404', 'message' => 'Location failed to Delete'], 404);

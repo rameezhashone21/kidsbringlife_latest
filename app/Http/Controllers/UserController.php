@@ -185,12 +185,16 @@ class UserController extends Controller
   public function destroy($id)
   {
 
-    // delete user profile image
+    // delete user profile image from database
     $user = User::where('id', $id)->first();
-    if ($user) {
-      if ($user->profile_photo != 'no_img.jpg') {
-        Storage::delete('public/user_profile_photos/' . $user->profile_photo);
-      }
+
+    if($user->roles[0]->level == 2) {
+       return response()->json(['error'=>'Unauthorised', 'message' =>'Admin User cannot be deleted'], 419);
+    }
+
+    if($user){
+    if ($user->profile_photo != 'no_img.jpg') {
+      Storage::delete('public/user_profile_photos/' . $user->profile_photo);
     }
     if ($user) {
       //Delete user data
