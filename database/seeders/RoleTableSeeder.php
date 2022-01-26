@@ -31,7 +31,7 @@ class RoleTableSeeder extends Seeder
       ],
       [
         'name'        => 'Location Manager',
-        'slug'        => 'user',
+        'slug'        => 'location-manager',
         'description' => 'Location Manager Role',
         'level'       => 1,
         'status'      => 1,
@@ -61,26 +61,6 @@ class RoleTableSeeder extends Seeder
           'level'       => $role['level'],
           'status'       => $role['status']
         ]);
-
-        // Attach permission to admin role
-        if ($role['slug'] == 'admin') {
-          foreach ($permissions as $permission) {
-            if ($permission->slug == 'dashboard') {
-              continue;
-            }
-            $newRole->attachPermission($permission);
-          }
-        }
-
-        // Attach permission to user role
-        if ($role['slug'] == 'user') {
-          foreach ($permissions as $permission) {
-            if ($permission->slug != 'dashboard') {
-              continue;
-            }
-            $newRole->attachPermission($permission);
-          }
-        }
 
         echo "\e[32mSeeding:\e[0m RoleTableSeeder - Role:" . $role['slug'] . "\r\n";
       }

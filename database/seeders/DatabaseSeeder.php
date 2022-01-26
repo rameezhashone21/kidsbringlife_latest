@@ -5,8 +5,6 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Database\Seeders\RoleTableSeeder;
 use Database\Seeders\UserTableSeeder;
-use Database\Seeders\AppSettingTableSeeder;
-use Database\Seeders\WebSettingTableSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -23,8 +21,6 @@ class DatabaseSeeder extends Seeder
       PermissionTableSeeder::class,
       RoleTableSeeder::class,
       UserTableSeeder::class,
-      AppSettingTableSeeder::class,
-      WebSettingTableSeeder::class
     ]);
   }
 }

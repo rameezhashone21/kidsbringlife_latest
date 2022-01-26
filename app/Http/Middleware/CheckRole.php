@@ -24,12 +24,19 @@ class CheckRole
 
       if ($authlevel == 2) {
         return $next($request);
-      } else if ($authlevel == 1) {
-        return redirect(RouteServiceProvider::HOME);
       } else {
-        abort(401);
+        return response()->json([
+          'error'   => 'forbidden',
+          'message' => 'You are not allowed to access this page.',
+          'status'  => 0
+        ], 403);
       }
+    } else {
+      return response()->json([
+        'error'   => 'unauthorized',
+        'message' => 'Sorry please login first.',
+        'status'  => 0
+      ], 401);
     }
-    return redirect('/');
   }
 }

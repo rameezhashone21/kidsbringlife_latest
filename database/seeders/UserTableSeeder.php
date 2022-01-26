@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Role;
 use App\Models\User;
-use App\Models\Permission;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -18,9 +17,7 @@ class UserTableSeeder extends Seeder
   public function run()
   {
     $adminRole = Role::where('slug', '=', 'admin')->first();
-    $userRole = Role::where('slug', '=', 'user')->first();
-
-    $permissions = Permission::all();
+    $locationManagerRole = Role::where('slug', '=', 'location-manager')->first();
 
     /**
      * Insert admin details for login
@@ -40,7 +37,7 @@ class UserTableSeeder extends Seeder
 
       $newUser->attachRole($adminRole);
 
-      echo "\e[32mSeeding:\e[0m UsersTableSeeder - user:admin@admin.com\r\n";
+      echo "\e[32mSeeding:\e[0m UsersTableSeeder - user:johnconnor2996@gmail.com\r\n";
     }
 
     if (User::where('email', '=', 'johnconnor2996@gmail.com')->first() === null) {
@@ -53,7 +50,7 @@ class UserTableSeeder extends Seeder
         'status'            => 1
       ]);
 
-      $newUser->attachRole($userRole);
+      $newUser->attachRole($locationManagerRole);
 
       echo "\e[32mSeeding:\e[0m UsersTableSeeder - user:admin@admin.com\r\n";
     }

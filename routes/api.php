@@ -2,10 +2,11 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\AuthenticationController;
-use App\Http\Controllers\Api\LocationController;
-use App\Http\Controllers\Api\EventController;
-use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\EventController;
+use App\Http\Controllers\LocationController;
+use App\Http\Controllers\AuthenticationController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -22,31 +23,37 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
   return $request->user();
 });
 
-  
+// Public routes
 Route::post('login', [AuthenticationController::class, 'login']);
 Route::post('register', [AuthenticationController::class, 'register']);
-     
-Route::middleware('auth:api','user_check')->group( function () {
-   
-   //Locations Routes 
-   Route::get('get-all-location', [LocationController::class, 'index']);
-   Route::post('save-location', [LocationController::class, 'store']);
-   Route::delete('delete-location/{id}',[LocationController::class,'destroy']);
-   Route::put('update-location/{id}',[LocationController::class,'update']);
-   Route::get('get-specific-location/{id}',[LocationController::class,'details']);
 
-   //Event Routes
-   Route::get('get-all-events', [EventController::class, 'index']);
-   Route::post('save-event', [EventController::class, 'store']);
-   Route::delete('delete-event/{id}',[EventController::class,'destroy']);
-   Route::put('update-event/{id}',[EventController::class,'update']);
-   Route::get('get-specific-event/{id}',[EventController::class,'details']);
-   Route::get('get-users', [EventController::class, 'get_users']);
+// Protected routes
+Route::middleware(['auth:api'])->group(function () {
 
-   //User Routes
-   Route::get('get-all-users', [UserController::class, 'index']);
-   Route::post('save-user', [UserController::class, 'store']);
-   Route::delete('delete-user/{id}',[UserController::class,'destroy']);
-   Route::put('update-user/{id}',[UserController::class,'update']);
-   Route::get('get-specific-user/{id}',[UserController::class,'details']);
+  //Admin Routes
+  Route::prefix('/admin')->middleware(['checkrole:admin'])->group(function () {
+    Route::prefix('/v1')->group(function () {
+      //Locations Routes
+      Route::get('/locations', [LocationController::class, 'index'])->name('admin.locations');
+      Route::post('/location/save', [LocationController::class, 'store'])->name('admin.location.save');
+      Route::delete('/location/delete/{id}', [LocationController::class, 'destroy'])->name('admin.location.delete');
+      Route::put('/location/update/{id}', [LocationController::class, 'update'])->name('admin.locaiton.update');
+      Route::get('/location/get/{id}', [LocationController::class, 'details'])->name('admin.location.get');
+
+      //Event Routes
+      Route::get('/events', [EventController::class, 'index'])->name('admin.events');
+      Route::post('/event/save', [EventController::class, 'store'])->name('admin.event.save');
+      Route::delete('/event/delete/{id}', [EventController::class, 'destroy'])->name('admin.event.delete');
+      Route::put('/event/update/{id}', [EventController::class, 'update'])->name('admin.event.update');
+      Route::get('/event/get/{id}', [EventController::class, 'details'])->name('admin.event.get');
+      Route::get('/event/users', [EventController::class, 'get_users'])->name('admin.event.users');
+
+      //User Routes
+      Route::get('/users', [UserController::class, 'index'])->name('admin.users');
+      Route::post('/user/save', [UserController::class, 'store'])->name('admin.user.save');
+      Route::delete('/user/delete/{id}', [UserController::class, 'destroy'])->name('admin.user.delete');
+      Route::put('/user/update/{id}', [UserController::class, 'update'])->name('admin.user.update');
+      Route::get('/user/get/{id}', [UserController::class, 'details'])->name('admin.user.get');
+    });
+  });
 });
