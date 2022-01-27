@@ -24,9 +24,16 @@ class UserController extends Controller
     $users = User::all();
 
     if (count($users) > 0) {
-      return response(["Data" => $users, 'statusCode' => '200', 'message' => 'All Users'], 201);
+      return response()->json([
+        "result"  => $users,
+        "message" => "Success",
+        "status"  => 1
+      ], 200);
     } else {
-      return response(['statusCode' => '404', 'message' => 'No Data Found'], 404);
+      return response()->json([
+        "message" => "Record not found.",
+        "status"  => 0
+      ], 200);
     }
   }
 
@@ -188,20 +195,21 @@ class UserController extends Controller
     // delete user profile image from database
     $user = User::where('id', $id)->first();
 
-    if($user->roles[0]->level == 2) {
-       return response()->json(['error'=>'Unauthorised', 'message' =>'Admin User cannot be deleted'], 419);
+    if ($user->roles[0]->level == 2) {
+      return response()->json(['error' => 'Unauthorised', 'message' => 'Admin User cannot be deleted'], 419);
     }
 
-    if($user){
-    if ($user->profile_photo != 'no_img.jpg') {
-      Storage::delete('public/user_profile_photos/' . $user->profile_photo);
-    }
     if ($user) {
-      //Delete user data
-      $user = User::destroy($id);
-      return response(["Data" => $user, 'statusCode' => '200', 'message' => 'User Deleted Successfully'], 201);
-    } else {
-      return response(['statusCode' => '404', 'message' => 'User not deleted'], 404);
+      if ($user->profile_photo != 'no_img.jpg') {
+        Storage::delete('public/user_profile_photos/' . $user->profile_photo);
+      }
+      if ($user) {
+        //Delete user data
+        $user = User::destroy($id);
+        return response(["Data" => $user, 'statusCode' => '200', 'message' => 'User Deleted Successfully'], 201);
+      } else {
+        return response(['statusCode' => '404', 'message' => 'User not deleted'], 404);
+      }
     }
   }
 

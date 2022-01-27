@@ -55,10 +55,9 @@ class AuthenticationController extends Controller
       ], 200);
     } else {
       return response()->json([
-        'error'   => 'unauthorized',
         'message' => 'Incorrect login details',
         'status'  => 0
-      ], 401);
+      ], 200);
     }
   }
 }
