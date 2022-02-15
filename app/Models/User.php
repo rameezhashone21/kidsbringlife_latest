@@ -55,4 +55,10 @@ class User extends Authenticatable
   {
     return $this->belongsToMany(Role::class, 'role_users');
   }
+
+  public function asso_events() {
+    return $this->belongsToMany(Event::class, 'event_users', 'user_id')
+      ->withPivot('created_at')
+      ->withTimestamps();
+  }
 }

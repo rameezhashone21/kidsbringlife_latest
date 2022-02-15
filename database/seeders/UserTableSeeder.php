@@ -54,5 +54,20 @@ class UserTableSeeder extends Seeder
 
       echo "\e[32mSeeding:\e[0m UsersTableSeeder - user:admin@admin.com\r\n";
     }
+
+    if (User::where('email', '=', 'ali@gmail.com')->first() === null) {
+      $newUser = User::create([
+        'name'              => 'Ali',
+        'email'             => 'ali@gmail.com',
+        'email_verified_at' => now(),
+        'password'          => Hash::make('password'),
+        'profile_photo'     => 'default.png',
+        'status'            => 1
+      ]);
+
+      $newUser->attachRole($locationManagerRole);
+
+      echo "\e[32mSeeding:\e[0m UsersTableSeeder - user:ali@gmail.com\r\n";
+    }
   }
 }
