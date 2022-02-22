@@ -40,6 +40,7 @@ class User extends Authenticatable
   protected $hidden = [
     'password',
     'remember_token',
+    'pivot',
   ];
 
   /**
@@ -57,7 +58,7 @@ class User extends Authenticatable
   }
 
   public function asso_events() {
-    return $this->belongsToMany(Event::class, 'event_users', 'user_id')
+    return $this->belongsToMany(Event::class, 'event_users', 'event_id', 'user_id')
       ->withPivot('created_at')
       ->withTimestamps();
   }

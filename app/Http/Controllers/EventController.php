@@ -12,7 +12,9 @@ use App\Models\Event_user;
 use DateTime;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
+use App\Models\Meal;
 use DB;
+use stdClass;
 
 class EventController extends Controller
 {
@@ -105,9 +107,16 @@ class EventController extends Controller
      */
     public function details($id)
     {
-        $event = Event::where('id', $id)->get();
-        if (count($event) > 0) {
-            return response(["Data" => $event, 'statusCode' => '200', 'message' => 'Event Details'], 201);
+        $users = Event::where('id', $id)
+            ->with('users:id,name')
+            ->first();
+
+        // return response()->json([
+        //     'data'  => $users,
+        // ], 200);
+
+        if ($users) {
+            return response(["Data" => $users, 'statusCode' => '200', 'message' => 'Event Details'], 201);
         } else {
             return response(['statusCode' => '404', 'message' => 'No Data Found'], 404);
         }
@@ -217,6 +226,16 @@ class EventController extends Controller
             return response(["result" => $users, 'status' => '1', 'message' => 'Unasigned users'], 200);
         } else {
             return response(['status' => '0', 'message' => 'No Data Found'], 200);
+        }
+    }
+
+    public function get_meal()
+    {
+        $meals = Meal::all();
+        if (count($meals) > 0) {
+            return response(["Data" => $meals, 'statusCode' => '200', 'message' => 'Meal Type'], 201);
+        } else {
+            return response(['statusCode' => '404', 'message' => 'No Data Found'], 404);
         }
     }
 }

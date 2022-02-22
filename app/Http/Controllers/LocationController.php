@@ -124,4 +124,5 @@ class LocationController extends Controller
             return response(['statusCode' => '404', 'message' => 'Location failed to update'], 404);
         }
     }
+
 }

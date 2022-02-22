@@ -62,6 +62,10 @@ Route::middleware(['auth:api'])->group(function () {
       Route::get('/closeevent/{id}', [EventController::class, 'event_close'])->name('admin.event.close');
       Route::get('/event/users', [EventController::class, 'get_users'])->name('admin.event.users');
 
+      //Meal Route
+      Route::get('/get-meals', [EventController::class, 'get_meal'])->name('admin.meals');
+
+
       //User Routes
       Route::get('/users', [UserController::class, 'index'])->name('admin.users');
       Route::post('/user/save', [UserController::class, 'store'])->name('admin.user.save');
