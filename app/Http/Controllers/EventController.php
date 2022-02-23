@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Event;
 use App\Models\Event_user;
+use App\Models\Event_meal;
 use DateTime;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
@@ -41,10 +42,7 @@ class EventController extends Controller
      */
     public function store(Request $request)
     {
-
-        $data = $request->all();
-
-        $validator = Validator::make($data, [
+        $validator = Validator::make($request->all(), [
             'event_name' => 'required|max:255',
             'details' => 'required',
             'start_date' => 'required',
@@ -52,24 +50,28 @@ class EventController extends Controller
             'meal_type' => 'required',
         ]);
 
-
         if ($validator->fails()) {
-            return response(['error' => $validator->errors(), 'Validation Error']);
+            return response()->json(['error' => $validator->errors(), 'Validation Error'], 422);
         }
        
-        $event = new Event();
-        $event->event_name =  $request->get('event_name');
-        $event->details = $request->get('details');
-        $event->start_date = $request->get('start_date');
-        $event->end_date = $request->get('end_date');
-        $event->meal_type = $request->get('meal_type');
-        $event->save();
+        $event = Event::create([
+            'event_name'    => $request->event_name,
+            'details'       => $request->details,
+            'start_date'    => $request->start_date,
+            'end_date'      => $request->end_date,
+            'meal_type'     => $request->meal_type
+        ]);
 
-        $last_inserted_id = Event::orderBy('id', 'desc')->value('id');
+        if($request->meal_type == 1) $event->meal()->attach($request->meal_type, ['time' => $request->snack_time]);
+        else if($request->get('meal_type')== 2) $event->meal()->attach($request->meal_type, ['time' => $request->supper_time]);
+        else if($request->get('meal_type')== 3) {
+            $event->meal()->attach(1, ['time' => $request->snack_time]);
+            $event->meal()->attach(2, ['time' => $request->supper_time]);
+        }
 
         foreach ($request->user_id as $user_ids) {
             $event_user = new Event_user();
-            $event_user->event_id = $last_inserted_id;
+            $event_user->event_id = $event->id;
             $event_user->user_id = $user_ids;
             $event_user->save();
         }
@@ -107,16 +109,20 @@ class EventController extends Controller
      */
     public function details($id)
     {
-        $users = Event::where('id', $id)
+        // $users = Event::where('id', $id)
+        //     ->with('users:id,name')
+        //     ->first();
+
+        $meals = Event::where('id', $id)
             ->with('users:id,name')
+            ->with('meals:id,title')
+            ->with('event_meals')
             ->first();
 
-        // return response()->json([
-        //     'data'  => $users,
-        // ], 200);
+            //dd($meals);
 
-        if ($users) {
-            return response(["Data" => $users, 'statusCode' => '200', 'message' => 'Event Details'], 201);
+        if ($meals) {
+            return response(["Data" => $meals, 'statusCode' => '200', 'message' => 'Event Details'], 201);
         } else {
             return response(['statusCode' => '404', 'message' => 'No Data Found'], 404);
         }

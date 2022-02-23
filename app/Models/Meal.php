@@ -13,4 +13,14 @@ class Meal extends Model
         'title',
         'value',
       ];
+
+    protected $hidden = [
+        'pivot'
+    ];
+
+      public function asso_events() {
+        return $this->belongsToMany(Event::class, 'event_meals', 'event_id', 'meal_id')
+          ->withPivot('created_at')
+          ->withTimestamps();
+      }
 }
