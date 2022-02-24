@@ -62,11 +62,11 @@ class EventController extends Controller
             'meal_type'     => $request->meal_type
         ]);
 
-        if($request->meal_type == 1) $event->meal()->attach($request->meal_type, ['time' => $request->snack_time]);
-        else if($request->get('meal_type')== 2) $event->meal()->attach($request->meal_type, ['time' => $request->supper_time]);
+        if($request->meal_type == 1) $event->meals()->attach($request->meal_type, ['time' => $request->snack_time]);
+        else if($request->get('meal_type')== 2) $event->meals()->attach($request->meal_type, ['time' => $request->supper_time]);
         else if($request->get('meal_type')== 3) {
-            $event->meal()->attach(1, ['time' => $request->snack_time]);
-            $event->meal()->attach(2, ['time' => $request->supper_time]);
+            $event->meals()->attach(1, ['time' => $request->snack_time]);
+            $event->meals()->attach(2, ['time' => $request->supper_time]);
         }
 
         foreach ($request->user_id as $user_ids) {
