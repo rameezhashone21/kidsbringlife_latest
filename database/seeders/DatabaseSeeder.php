@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
       RoleTableSeeder::class,
       UserTableSeeder::class,
       EventsTableSeeder::class,
+      MealTableSeeder::class,
     ]);
   }
 }
