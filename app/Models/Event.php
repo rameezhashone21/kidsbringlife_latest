@@ -40,7 +40,7 @@ class Event extends Model
 
     public function event_meals() 
     {
-        return $this->hasMany(Event_meal::class)->select(['id', 'time']);
+        return $this->hasMany(Event_meal::class);
           //     return $this->belongsTo(Event_meal::class, 'event_id', 'id')->select(['id', 'title']);
 
     }
