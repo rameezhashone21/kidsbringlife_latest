@@ -97,6 +97,7 @@ class EventController extends Controller
         $event = Event::where('id', $id)->get();
         if (count($event) > 0) {
             Event_user::where('event_id', $id)->delete();
+            Event_meal::where('event_id', $id)->delete();
             Event::where('id', $id)->delete();
             return response(["Data" => $event, 'statusCode' => '200', 'message' => 'Event Deleted Successfully'], 201);
         } else {
