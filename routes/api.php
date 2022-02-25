@@ -97,6 +97,8 @@ Route::middleware(['auth:api'])->group(function () {
 
       Route::get('/my-event', [EventController::class, 'my_event'])->name('user.event.get');
 
+      Route::get('/my-event-participants', [EventController::class, 'event_participants'])->name('user.event.participants');
+
 
       // //Event Routes
       // Route::get('/events', [EventController::class, 'index'])->name('admin.events');
