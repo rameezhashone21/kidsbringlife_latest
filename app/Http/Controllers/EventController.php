@@ -147,7 +147,7 @@ class EventController extends Controller
             ->first();
 
 
-        if ($event > 0) {
+        if ($event) {
             return response(["result" => $event, 'status' => '200', 'message' => 'My Event'], 200);
         } else {
             return response(['status' => '0', 'message' => 'No Data Found'], 200);
