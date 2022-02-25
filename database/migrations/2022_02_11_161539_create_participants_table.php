@@ -23,6 +23,7 @@ class CreateParticipantsTable extends Migration
             $table->string('ratial_category');
             $table->text('address');
             $table->string('guardian');
+            $table->tinyInteger('user_id');
             $table->timestamps();
         });
     }
