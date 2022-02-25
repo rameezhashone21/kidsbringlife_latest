@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Participant;
 use App\Models\Participant_guardian;
+use App\Models\Event_user;
 use DB;
 use Illuminate\Support\Facades\Auth;
 
@@ -52,6 +53,8 @@ class ParticipantController extends Controller
             return response(['error' => $validator->errors(), 'Validation Error']);
         }
 
+        $event_id = Event_user::where('user_id', $user_id)->value('event_id');
+
         $participant = new Participant();
         $participant->first_name = $request->first_name;
         $participant->last_name = $request->last_name;
@@ -62,6 +65,7 @@ class ParticipantController extends Controller
         $participant->address = $request->address;
         $participant->guardian = $request->guardian;
         $participant->user_id = $user_id;
+        $participant->event_id = $event_id;
         $participant->save();
 
         if(!isset($participant))
@@ -149,6 +153,8 @@ class ParticipantController extends Controller
             return response(['error' => $validator->errors(), 'Validation Error']);
         }
 
+        $event_id = Event_user::where('user_id', $user_id)->value('event_id');
+
         $participant_edit = Participant::find($id);
         $participant = Participant::where('id', $id)->get();
 
@@ -162,6 +168,7 @@ class ParticipantController extends Controller
             $participant_edit->address = $request->get('address');
             $participant_edit->guardian = $request->get('guardian');
             $participant->user_id = $user_id;
+            $participant->event_id = $event_id;
             $participant_edit->save();
 
             

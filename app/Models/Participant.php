@@ -17,5 +17,7 @@ class Participant extends Model
         'ratial_category',
         'address',
         'guardian',
+        'event_id',
+        'user_id',
       ];
 }
