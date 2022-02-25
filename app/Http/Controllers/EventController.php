@@ -144,6 +144,7 @@ class EventController extends Controller
         $event = Event::where('id', $event_id)
             ->with('meals:id,title')
             ->with('event_meals')
+            ->with('participants')
             ->first();
 
 
