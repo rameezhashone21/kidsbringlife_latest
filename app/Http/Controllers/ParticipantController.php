@@ -53,7 +53,12 @@ class ParticipantController extends Controller
             return response(['error' => $validator->errors(), 'Validation Error']);
         }
 
-        $event_id = Event_user::where('user_id', $user_id)->value('event_id');
+        $event_id = Event_user::where('user_id', $user_id)->where('status', 1)->value('event_id');
+
+        if(!isset($event_id))
+        {
+            return response()->json(['message' => 'You cant add any particpant because You are not assigned to any event', 'status' => '0'], 200);
+        }
 
         $participant = new Participant();
         $participant->first_name = $request->first_name;
@@ -153,7 +158,7 @@ class ParticipantController extends Controller
             return response(['error' => $validator->errors(), 'Validation Error']);
         }
 
-        $event_id = Event_user::where('user_id', $user_id)->value('event_id');
+        $event_id = Event_user::where('user_id', $user_id)->where('status', 1)->value('event_id');
 
         $participant_edit = Participant::find($id);
         $participant = Participant::where('id', $id)->get();

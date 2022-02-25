@@ -144,7 +144,7 @@ class EventController extends Controller
         $event_id = Event_user::where('user_id', $id)
                     ->where('status',1)
                     ->value('event_id');
-                    
+
         $event = Event::where('id', $event_id)
             ->with('meals:id,title')
             ->with('event_meals')
@@ -166,7 +166,7 @@ class EventController extends Controller
                     ->where('status',1)
                     ->value('event_id');
 
-        $event_participants = Participant::where('event_id', $event_id)
+        $event_participants = Participant::select('id','name')->where('event_id', $event_id)
                 ->get();
 
 
