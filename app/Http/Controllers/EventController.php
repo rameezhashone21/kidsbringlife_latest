@@ -69,11 +69,13 @@ class EventController extends Controller
             $event->meals()->attach(2, ['time' => $request->supper_time]);
         }
 
-        foreach ($request->user_id as $user_ids) {
+        foreach ($request->user_id as $user_id) {
             $event_user = new Event_user();
             $event_user->event_id = $event->id;
-            $event_user->user_id = $user_ids;
+            $event_user->user_id = $user_id;
             $event_user->save();
+
+            User::where('id',$user_id)->update(["assigned_to_event" => 1]);
         }
 
         if (isset($event)) {
@@ -139,7 +141,12 @@ class EventController extends Controller
         $id = Auth::id();
 
         $event_id = Event_user::where('user_id', $id)->value('event_id');
-        $event = Event::where('id', $event_id)->get();
+        $event = Event::where('id', $event_id)
+            ->with('meals:id,title')
+            ->with('event_meals')
+            ->first();
+
+
         if (count($event) > 0) {
             return response(["result" => $event, 'status' => '200', 'message' => 'My Event'], 200);
         } else {
@@ -207,11 +214,13 @@ class EventController extends Controller
 
             Event_user::where('event_id', $id)->delete();
 
-            foreach ($request->user_id as $user_ids) {
+            foreach ($request->user_id as $user_id) {
                 $event_user = new Event_user();
                 $event_user->event_id = $id;
-                $event_user->user_id = $user_ids;
+                $event_user->user_id = $user_id;
                 $event_user->save();
+
+                User::where('id',$user_id)->update(["assigned_to_event" => 1]);
             }
 
             return response(["Data" => $event_edit, 'statusCode' => '200', 'message' => 'Event Updated Successfully'], 201);
