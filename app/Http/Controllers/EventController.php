@@ -14,6 +14,7 @@ use DateTime;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use App\Models\Meal;
+use App\Models\Participant;
 use DB;
 use stdClass;
 
@@ -140,16 +141,37 @@ class EventController extends Controller
     {
         $id = Auth::id();
 
-        $event_id = Event_user::where('user_id', $id)->value('event_id');
+        $event_id = Event_user::where('user_id', $id)
+                    ->where('status',1)
+                    ->value('event_id');
+                    
         $event = Event::where('id', $event_id)
             ->with('meals:id,title')
             ->with('event_meals')
-            ->with('participants')
             ->first();
 
 
         if ($event) {
-            return response(["result" => $event, 'status' => '200', 'message' => 'My Event'], 200);
+            return response(["result" => $event, 'status' => '1', 'message' => 'My Event'], 200);
+        } else {
+            return response(['status' => '0', 'message' => 'No Data Found'], 200);
+        }
+    }
+
+    public function event_participants()
+    {
+
+        $id = Auth::id();
+        $event_id = Event_user::where('user_id', $id)
+                    ->where('status',1)
+                    ->value('event_id');
+
+        $event_participants = Participant::where('event_id', $event_id)
+                ->get();
+
+
+        if (count($event_participants) > 0) {
+            return response(["result" => $event_participants, 'status' => '1', 'message' => 'My Event'], 200);
         } else {
             return response(['status' => '0', 'message' => 'No Data Found'], 200);
         }
@@ -172,6 +194,8 @@ class EventController extends Controller
         Event_user::where('event_id', $id)
             ->join('users', 'event_users.user_id', '=', 'users.id')
             ->update(['assigned_to_event' => '2']);
+
+        Event_user::where('event_id',$id)->update(["status" => 2]);
 
         
         if (isset($event)) {

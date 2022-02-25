@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\User;
+use App\Models\Participant;
 use App\Models\Activity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -38,10 +39,6 @@ class Event extends Model
         return $this->belongsToMany(Meal::class, 'event_meals', 'event_id', 'meal_id');
     }
 
-    public function participants() 
-    {
-        return $this->belongsToMany(Paticipant::class, 'event_id', 'id');
-    }
 
     public function event_meals() 
     {
