@@ -82,7 +82,7 @@ class UserTableSeeder extends Seeder
 
       $newUser->attachRole($locationManagerRole);
 
-      echo "\e[32mSeeding:\e[0m UsersTableSeeder - user:ali@gmail.com\r\n";
+      echo "\e[32mSeeding:\e[0m UsersTableSeeder - user:ahmed@gmail.com\r\n";
     }
   }
 }
