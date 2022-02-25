@@ -167,7 +167,7 @@ class EventController extends Controller
                     ->where('status',1)
                     ->value('event_id');
 
-        $event_participants = Participant::select('id','name')->where('event_id', $event_id)
+        $event_participants = Participant::select('id','first_name','last_name')->where('event_id', $event_id)
                 ->get();
 
 
