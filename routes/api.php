@@ -6,6 +6,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\ParticipantController;
+use App\Http\Controllers\ParticipantAttendanceMealController;
 use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\ForgotPasswordController;
 
@@ -98,6 +99,9 @@ Route::middleware(['auth:api'])->group(function () {
       Route::get('/my-event', [EventController::class, 'my_event'])->name('user.event.get');
 
       Route::get('/my-event-participants', [EventController::class, 'event_participants'])->name('user.event.participants');
+
+      Route::post('/mark-participant-attendance/{id}', [ParticipantAttendanceMealController::class, 'mark_attendance'])->name('user.participants.mark_attendance');
+      Route::post('/mark-participant-meal/{id}', [ParticipantAttendanceMealController::class, 'mark_meal'])->name('user.participants.mark_meal');
 
 
       // //Event Routes

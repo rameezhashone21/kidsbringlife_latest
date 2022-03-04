@@ -38,6 +38,10 @@ class Event extends Model
     {
         return $this->belongsToMany(Meal::class, 'event_meals', 'event_id', 'meal_id');
     }
+    public function meal_participant() 
+    {
+        return $this->belongsToMany(Meal::class, 'event_meals_participants', 'event_id', 'meal_type');
+    }
 
 
     public function event_meals() 

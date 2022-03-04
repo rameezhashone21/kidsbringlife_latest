@@ -79,8 +79,28 @@ class EventController extends Controller
             User::where('id',$user_id)->update(["assigned_to_event" => 1]);
         }
 
-        if (isset($event)) {
-            return response(["Data" => $event, 'statusCode' => '200', 'message' => 'Event Created Successfully'], 201);
+        // //finding all dates of event
+        // $period = CarbonPeriod::create($request->start_date, $request->end_date);
+
+        // //Inserting date wise data for attendance marking
+        // foreach ($period as $date) {
+        //     $date_event=$date->format('Y-m-d');
+
+        //     if($request->get('meal_type')== 1){
+        //         $event->meal_participant()->attach($request->meal_type, ['date' => $date_event]);
+        //     }
+        //     if($request->get('meal_type')== 2){
+        //         $event->meal_participant()->attach($request->meal_type, ['date' => $date_event]);
+        //     }
+        //     if($request->get('meal_type')== 3){
+        //         $event->meal_participant()->attach(1, ['date' => $date_event]);
+        //         $event->meal_participant()->attach(2, ['date' => $date_event]);
+        //     }
+            
+        // }
+
+        if (isset($dates)) {
+            return response(["Data" => $dates, 'statusCode' => '200', 'message' => 'Event Created Successfully'], 201);
         } else {
             return response(['statusCode' => '404', 'message' => 'Event failed to create'], 404);
         }
@@ -94,6 +114,11 @@ class EventController extends Controller
      */
     public function destroy($id)
     {
+        
+        Event_user::where('event_id', $id)
+            ->join('users', 'event_users.user_id', '=', 'users.id')
+            ->update(['assigned_to_event' => '2']);
+
         $event = Event::where('id', $id)->get();
         if (count($event) > 0) {
             Event_user::where('event_id', $id)->delete();
@@ -167,12 +192,11 @@ class EventController extends Controller
                     ->where('status',1)
                     ->value('event_id');
 
-        $event_participants = Participant::select('id','first_name','last_name')->where('event_id', $event_id)
-                ->get();
-
-
-        if (count($event_participants) > 0) {
-            return response(["result" => $event_participants, 'status' => '1', 'message' => 'My Event'], 200);
+        $participant_id = Participant::select('id')->where('event_id', $event_id)->get();    
+        $participants = Participant::with('participant_attendance')->with('participant_meals')->wherein('id', $participant_id)->get();
+                
+        if ($participants) {
+            return response(["result" => $participants, 'status' => '1', 'message' => 'My Event'], 200);
         } else {
             return response(['status' => '0', 'message' => 'No Data Found'], 200);
         }
