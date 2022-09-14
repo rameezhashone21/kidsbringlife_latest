@@ -15,4 +15,15 @@ class Location extends Model
         'lat',
         'long',
       ];
+      
+    
+    public function events()
+    {
+        return $this->hasOne(Event::class);
+    }
+    
+    public function users()
+    {
+        return $this->hasMany(User::class,'location_id');
+    }
 }

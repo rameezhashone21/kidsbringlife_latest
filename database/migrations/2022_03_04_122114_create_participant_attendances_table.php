@@ -15,9 +15,9 @@ class CreateParticipantAttendancesTable extends Migration
     {
         Schema::create('participant_attendances', function (Blueprint $table) {
             $table->id();
-            $table->tinyInteger('particpant_id');
+            $table->string('participant_id');
             $table->string('date');
-            $table->tinyInteger('attendance');
+            $table->string('attendance');
             $table->timestamps();
         });
     }

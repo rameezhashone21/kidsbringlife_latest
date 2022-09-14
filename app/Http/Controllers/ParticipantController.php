@@ -18,16 +18,21 @@ class ParticipantController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         $user_id= Auth::id();
-        $participants = Participant::where('user_id',$user_id)->get();
+        $participants = Participant::
+                        orwhere('first_name','LIKE','%'.$request->q.'%')
+                        ->orwhere('last_name','LIKE','%'.$request->q.'%')
+                        ->where('user_id',$user_id)->orderBy('id', 'DESC')->paginate(10);
+                        
         if (count($participants) > 0) {
-            return response()->json(["result" => $participants, 'message' => 'All Participants', 'status' => '1'], 200);
+            return response()->json(["result" => $participants, 'message' => 'Participants', 'status' => '1'], 200);
         } else {
             return response()->json(['message' => 'No Data Found', 'status' => '0'], 200);
         }
     }
+    
 
     /**
      * Store a newly created resource in storage.
@@ -43,8 +48,6 @@ class ParticipantController extends Controller
             'first_name' => 'required',
             'last_name' => 'required',
             'age' => 'required',
-            'ratial_category' => 'required',
-            'address' => 'required',
         ]);
 
         $user_id= Auth::id();
@@ -59,15 +62,22 @@ class ParticipantController extends Controller
         {
             return response()->json(['message' => 'You cant add any particpant because You are not assigned to any event', 'status' => '0'], 200);
         }
-
+        
+        // $name_contact_check = Participant::where('first_name', $request->first_name)->where('contact_no', $request->contact_no)->value('id');
+        
+        // if(isset($name_contact_check))
+        // {
+        //     return response()->json(['message' => 'Participant is added already', 'status' => '0'], 200);
+        // }
+        
         $participant = new Participant();
         $participant->first_name = $request->first_name;
         $participant->last_name = $request->last_name;
+        $participant->full_name = $request->first_name . ' ' . $request->last_name;
         $participant->allergies = $request->allergies;
         $participant->age = $request->age;
         $participant->ethinic_category = $request->ethinic_category;
         $participant->ratial_category = $request->ratial_category;
-        $participant->address = $request->address;
         $participant->guardian = $request->guardian;
         $participant->user_id = $user_id;
         $participant->event_id = $event_id;
@@ -75,7 +85,7 @@ class ParticipantController extends Controller
 
         if(!isset($participant))
         {
-            return response()->json(['message' => 'Particpant failed to create', 'status' => '0'], 200);
+            return response()->json(['message' => 'Particpant failed to create', 'status' => '0'], 404);
         }
 
         $last_inserted_id = Participant::orderBy('id', 'desc')->value('id');
@@ -148,8 +158,6 @@ class ParticipantController extends Controller
             'first_name' => 'required',
             'last_name' => 'required',
             'age' => 'required',
-            'ratial_category' => 'required',
-            'address' => 'required',
         ]);
 
         $user_id= Auth::id();
@@ -159,6 +167,13 @@ class ParticipantController extends Controller
         }
 
         $event_id = Event_user::where('user_id', $user_id)->where('status', 1)->value('event_id');
+        
+        // $name_contact_check = Participant::where('first_name', $request->first_name)->where('contact_no', $request->contact_no)->value('id');
+        
+        // if(isset($name_contact_check))
+        // {
+        //     return response()->json(['message' => 'Participant is added already', 'status' => '0'], 200);
+        // }
 
         $participant_edit = Participant::find($id);
         $participant = Participant::where('id', $id)->get();
@@ -166,11 +181,11 @@ class ParticipantController extends Controller
         if (count($participant) > 0) {
             $participant_edit->first_name =  $request->get('first_name');
             $participant_edit->last_name = $request->get('last_name');
+            $participant_edit->full_name = $request->get('first_name') . ' ' . $request->get('last_name');
             $participant_edit->allergies = $request->get('allergies');
             $participant_edit->age = $request->get('age');
             $participant_edit->ethinic_category = $request->get('ethinic_category');
             $participant_edit->ratial_category = $request->get('ratial_category');
-            $participant_edit->address = $request->get('address');
             $participant_edit->guardian = $request->get('guardian');
             $participant->user_id = $user_id;
             $participant->event_id = $event_id;
@@ -200,7 +215,7 @@ class ParticipantController extends Controller
 
             return response(["result" => $participant_edit, 'status' => '1', 'message' => 'Particpant Updated Successfully'], 200);
         } else {
-            return response(['status' => '0', 'message' => 'Event failed to update'], 200);
+            return response(['status' => '0', 'message' => 'Event failed to update'], 404);
         }
     }
 }

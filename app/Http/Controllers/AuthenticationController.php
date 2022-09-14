@@ -12,29 +12,92 @@ use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\URL;
+use Mail; 
 
 class AuthenticationController extends Controller
 {
-  public function adminregister(Request $request)
+  public function userregister(Request $request)
   {
-    $validator = Validator::make($request->all(), [
-      'name' => 'required',
-      'email' => 'required|email',
-      'password' => 'required',
-      'c_password' => 'required|same:password',
-    ]);
+    $data = $request->all();
+    
+     $validate = $this->validateRegisterationRequest($request->all());
+        if($validate->fails()) return response()->json([
+            'success'   => false,
+            'error'     => $validate->errors(),
+            'message'   => 'Invalid input, please check the errors.'
+        ], 422);
 
-    if ($validator->fails()) {
-      return response()->json(['Validation Error.', $validator->errors()], 422);
+    $request['role'] = "2";
+    
+    if ($request->hasFile('profile_photo')) {
+      // Save image to folder
+      $loc = '/public/user_profile_photos';
+      $fileData = $request->file('profile_photo');
+      $fileNameToStore = $this->uploadImage($fileData, $loc);
+    } else {
+      $fileNameToStore = 'no_img.jpg';
     }
 
-    $input = $request->all();
-    $input['password'] = bcrypt($input['password']);
-    $user = User::create($input);
-    $success['token'] =  $user->createToken('MyApp')->accessToken;
-    $success['name'] =  $user->name;
+    $user = new User;
+    $user->name = $request->name;
+    $user->email = $request->email;
+    $user->password = Hash::make($request->password);
+    $user->phone_number = $request->phone_number;
+    $user->profile_photo = $fileNameToStore;
+    $user->location_id = $request->location_id;
+    $user->status = "0";
+    $user->save();
 
-    return response()->json([$success, 'User register successfully.'], 201);
+    // Save data into db
+
+    // Attach role to user
+    $role = Role::where('id', $request['role'])->first();
+    $user->attachRole($role);
+    
+    
+    
+      $url=URL::to('https://backend.hostingladz.com/kids/admin/managers');
+
+      $hello=Mail::send('email.userregistered', ['url' => $url, 'name' => $request->name,'email' => $request->email], function($message) use($request){
+        $message->to("kids@yopmail.com");
+        $message->subject('New location Manager Registered');
+      });
+
+    
+    if (Mail::failures()) {
+        return response(['statusCode' => '404', 'message' => 'User did not register'], 404);
+    } else {
+        return response(["Data" => $user, 'statusCode' => '200', 'message' => 'User Registration Request has been sent to admin for approval'], 201);
+
+    }
+    
+  }
+  
+   protected function validateRegisterationRequest($data) {
+        $validate = Validator::make($data, [
+            'name'    => 'required|string|max:255',
+            'email'         => 'required|string|email|max:255|unique:users',
+            'password'      => 'required',
+        ]);
+
+        return $validate;
+    }
+    
+    public function uploadImage($fileData, $loc)
+    {
+      // Get file name with extension
+      $fileNameWithExt = $fileData->getClientOriginalName();
+      // Get just file name
+      $fileName = pathinfo($fileNameWithExt, PATHINFO_FILENAME);
+      // Get just extension
+      $fileExtension = $fileData->extension();
+      // File name to store
+      $fileNameToStore = time() . '.' . $fileExtension;
+      // Finally Upload Image
+      $fileData->storeAs($loc, $fileNameToStore);
+
+      return $fileNameToStore;
   }
 
   /**
@@ -42,7 +105,7 @@ class AuthenticationController extends Controller
    *
    * @return \Illuminate\Http\Response
    */
-  public function adminlogin(Request $request)
+  public function userlogin(Request $request)
   {
     if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
       // Get authenticated user
@@ -53,6 +116,7 @@ class AuthenticationController extends Controller
       return response()->json([
         'token'   => $token,
         'level'   => $user->level(),
+        'verfication_status'   => $user->status,
         'message' => 'Logged In Successfully',
         'status'  => 1
       ], 200);

@@ -15,13 +15,26 @@ class LocationController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $locations = Location::all();
+        $locations = Location::orwhere('location_name','LIKE','%'.$request->q.'%')
+                    ->orderBy('id', 'DESC')
+                    ->paginate(10);
+                
         if (count($locations) > 0) {
-            return response(["Data" => $locations, 'statusCode' => '200', 'message' => 'All locations'], 201);
+            return response()->json(["result" => $locations, 'message' => 'Locations', 'status' => '1'], 200);
         } else {
-            return response(['statusCode' => '404', 'message' => 'No Data Found'], 404);
+            return response()->json(['message' => 'No Data Found', 'status' => '0'], 200);
+        }
+    }
+    
+    public function get_all_locations()
+    {
+        $locations = Location::orderBy('id', 'DESC')->get();
+        if (count($locations) > 0) {
+            return response(["Data" => $locations, 'statusCode' => '1', 'message' => 'All locations'], 200);
+        } else {
+            return response(["Data" => array(), 'statusCode' => '0', 'message' => 'No Data Found'], 200);
         }
     }
 
@@ -66,9 +79,9 @@ class LocationController extends Controller
         $location = Location::where('id', $id)->get();
         if (count($location) > 0) {
             Location::where('id', $id)->delete();
-            return response(["Data" => $location, 'statusCode' => '200', 'message' => 'Location Deleted Successfully'], 201);
+            return response(["Data" => $location, 'statusCode' => '1', 'message' => 'Location Deleted Successfully'], 200);
         } else {
-            return response(["Data" => $location, 'statusCode' => '404', 'message' => 'Location failed to Delete'], 404);
+            return response(["Data" => array(), 'statusCode' => '0', 'message' => 'Location failed to Delete'], 200);
         }
     }
 
@@ -83,9 +96,9 @@ class LocationController extends Controller
     {
         $location = Location::where('id', $id)->get();
         if (count($location) > 0) {
-            return response(["Data" => $location, 'statusCode' => '200', 'message' => 'location Details'], 201);
+            return response(["Data" => $location, 'statusCode' => '1', 'message' => 'location Details'], 200);
         } else {
-            return response(['statusCode' => '404', 'message' => 'No Data Found'], 404);
+            return response(["Data" => array(),'statusCode' => '0', 'message' => 'No Data Found'], 200);
         }
     }
 

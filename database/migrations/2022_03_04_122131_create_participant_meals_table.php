@@ -15,9 +15,9 @@ class CreateParticipantMealsTable extends Migration
     {
         Schema::create('participant_meals', function (Blueprint $table) {
             $table->id();
-            $table->tinyInteger('particpant_id');
+            $table->string('participant_id');
             $table->string('date');
-            $table->tinyInteger('meal_type');
+            $table->string('meal_type');
             $table->string('meal_taken');
             $table->timestamps();
         });

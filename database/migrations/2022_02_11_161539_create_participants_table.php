@@ -20,9 +20,8 @@ class CreateParticipantsTable extends Migration
             $table->string('allergies')->nullable();
             $table->string('age');
             $table->string('ethinic_category')->nullable();
-            $table->string('ratial_category');
+            $table->string('ratial_category')->nullable();
             $table->text('address');
-            $table->string('guardian');
             $table->tinyInteger('event_id');
             $table->tinyInteger('user_id');
             $table->timestamps();

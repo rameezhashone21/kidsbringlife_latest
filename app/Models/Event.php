@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\User;
+use App\Models\Location;
 use App\Models\Participant;
 use App\Models\Activity;
 use Illuminate\Database\Eloquent\Model;
@@ -18,6 +19,7 @@ class Event extends Model
         'start_date',
         'end_date',
         'meal_type',
+        'location_id',
     ];
 
     /**
@@ -33,10 +35,20 @@ class Event extends Model
     {
         return $this->belongsToMany(User::class, 'event_users', 'event_id', 'user_id');
     }
+    
+    public function locations()
+    {
+        return $this->belongsTo(Location::class,'location_id', 'id');
+    }
 
     public function meals() 
     {
         return $this->belongsToMany(Meal::class, 'event_meals', 'event_id', 'meal_id');
+    }
+    
+    public function event_days() 
+    {
+        return $this->hasMany(Event_day::class, 'event_id', 'id');
     }
     public function meal_participant() 
     {

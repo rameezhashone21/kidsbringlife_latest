@@ -16,7 +16,6 @@ class Participant extends Model
         'allergies',
         'ethinic_category',
         'ratial_category',
-        'address',
         'guardian',
         'event_id',
         'user_id',

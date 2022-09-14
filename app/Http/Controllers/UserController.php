@@ -18,11 +18,12 @@ class UserController extends Controller
    *
    * @return \Illuminate\Http\Response
    */
-  public function index()
+  public function index(Request $request)
   {
-    // Get all data.
-    $users = User::all();
-
+    $users= User::with('roles')->with('locations')->orwhere('name','LIKE','%'.$request->q.'%')->whereHas('roles', function($q) {
+        $q->whereNotIn('level', [2]);
+    })->orderBy('id', 'DESC')->paginate(10);
+    
     if (count($users) > 0) {
       return response()->json([
         "result"  => $users,
@@ -31,11 +32,13 @@ class UserController extends Controller
       ], 200);
     } else {
       return response()->json([
+        "result"  => array(),
         "message" => "Record not found.",
         "status"  => 0
       ], 200);
     }
   }
+  
 
   /**
    * Store a newly created resource in storage.
@@ -46,15 +49,17 @@ class UserController extends Controller
   public function store(Request $request)
   {
     $data = $request->all();
-    $validator = Validator::make($data, [
-      'name' => 'required|max:255',
-      'email' => 'required',
-      'password' => 'required',
-      'profile_photo' => 'required',
-    ]);
+    
+     $validate = $this->validateRegisterationRequest($request->all());
+        if($validate->fails()) return response()->json([
+            'success'   => false,
+            'error'     => $validate->errors(),
+            'message'   => 'Invalid input, please check the errors.'
+        ], 422);
+        
 
     $request['role'] = "2";
-    $request['status'] = "1";
+
     if ($request->hasFile('profile_photo')) {
       // Save image to folder
       $loc = '/public/user_profile_photos';
@@ -68,8 +73,13 @@ class UserController extends Controller
     $user->name = $request->name;
     $user->email = $request->email;
     $user->password = Hash::make($request->password);
+    $user->phone_number = $request->phone_number;
     $user->profile_photo = $fileNameToStore;
-    $user->status = "1";
+    $user->address = $request->address;
+    $user->postal_code = $request->postal_code;
+    $user->state = $request->state;
+    $user->city = $request->city;
+    $user->status = $request->status;
     $user->save();
 
     // Save data into db
@@ -91,6 +101,23 @@ class UserController extends Controller
    * @param  int  $id
    * @return \Illuminate\Http\Response
    */
+   
+    protected function validateRegisterationRequest($data) {
+        $validate = Validator::make($data, [
+            'name'    => 'required|string|max:255',
+            'email'         => 'required|string|email|max:255|unique:users',
+            'password'      => 'required',
+            'profile_photo'      => 'required',
+            'address'      => 'required|string',
+            'postal_code'      => 'required|string',
+            'state'  => 'required|string',
+            'city'  => 'required|string',
+            'phone_number'        => 'required|integer'
+        ]);
+
+        return $validate;
+    }
+    
   public function show($id)
   {
     //
@@ -124,13 +151,17 @@ class UserController extends Controller
    */
   public function update(Request $request, $id)
   {
+      //dd($request);
     // Validate data
     $data = $request->all();
     $validator = Validator::make($data, [
-      'name' => 'required|max:255',
-      'email' => 'required',
-      'password' => 'required',
-      'profile_photo' => 'required',
+      'password'      => 'required',
+      'profile_photo'      => 'required',
+      'address'      => 'required|string',
+      'postal_code'      => 'required|string',
+      'state'  => 'required|string',
+      'city'  => 'required|string',
+      'phone_number'        => 'required|integer'
     ]);
 
     if ($request->hasFile('profile_photo')) {
@@ -158,8 +189,12 @@ class UserController extends Controller
 
     $data = [
       'name' => $request->name,
-      'email' => $request->email,
-      'status' => "1"
+      'address' => $request->address,
+      'postal_code' => $request->postal_code,
+      'state' => $request->state,
+      'city' => $request->city,
+      'phone_number' => $request->phone_number,
+      'status' => $request->status,
     ];
 
     // Merge all data arrays
@@ -206,9 +241,9 @@ class UserController extends Controller
       if ($user) {
         //Delete user data
         $user = User::destroy($id);
-        return response(["Data" => $user, 'statusCode' => '200', 'message' => 'User Deleted Successfully'], 201);
+        return response(["Data" => $user, 'statusCode' => '1', 'message' => 'User Deleted Successfully'], 200);
       } else {
-        return response(['statusCode' => '404', 'message' => 'User not deleted'], 404);
+        return response(["Data" => array(), 'statusCode' => '0', 'message' => 'User not deleted'], 200);
       }
     }
   }
@@ -224,6 +259,22 @@ class UserController extends Controller
   {
     $user = User::where('id', $id)->get();
     if (count($user) > 0) {
+      return response(["Data" => $user, 'statusCode' => '1', 'message' => 'User Details'], 200);
+    } else {
+      return response(["Data" => array(), 'statusCode' => '0', 'message' => 'No Data Found'], 200);
+    }
+  }
+  
+  /**
+   * Get the specific resource from storage.
+   *
+   * @param  int  $id
+   * @return \Illuminate\Http\Response
+   */
+  public function my_info()
+  {
+    $user = auth()->user();
+    if (isset($user)) {
       return response(["Data" => $user, 'statusCode' => '200', 'message' => 'User Details'], 201);
     } else {
       return response(['statusCode' => '404', 'message' => 'No Data Found'], 404);

@@ -47,7 +47,7 @@ class ForgotPasswordController extends Controller
       ]);
 
 
-      $url=URL::to('https://demo7.1stopwebsitesolution.com/kids/reset-password?token='.$token);
+      $url=URL::to('https://backend.hostingladz.com/kids/reset-password?token='.$token);
 
       $hello=Mail::send('email.forgetPassword', ['url' => $url], function($message) use($request){
         $message->to($request->email);

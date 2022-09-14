@@ -18,7 +18,6 @@ class Participant_meal extends Model
 
     protected $hidden = [
         'id',
-        'participant_id',
         'created_at',
         'updated_at',
     ];
