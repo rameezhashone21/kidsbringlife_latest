@@ -3,17 +3,17 @@
 namespace App\Http\Controllers;
 
 use DB;
+use Mail; 
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rules;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rules;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\URL;
-use Mail; 
 
 class AuthenticationController extends Controller
 {
@@ -30,6 +30,16 @@ class AuthenticationController extends Controller
 
     $request['role'] = "2";
     
+    // Media
+    if ($request->hasFile('signature')) {
+      // Save image to folder
+      $loc = '/public/signature';
+      $fileData = $request->file('signature');
+      $signatureNameToStore = $this->uploadImage($fileData, $loc);
+    } else {
+      $signatureNameToStore = null;
+    }
+
     if ($request->hasFile('profile_photo')) {
       // Save image to folder
       $loc = '/public/user_profile_photos';
@@ -44,9 +54,11 @@ class AuthenticationController extends Controller
     $user->email = $request->email;
     $user->password = Hash::make($request->password);
     $user->phone_number = $request->phone_number;
-    $user->profile_photo = $fileNameToStore;
     $user->location_id = $request->location_id;
     $user->status = "0";
+    // media to store.
+    $user->profile_photo = $fileNameToStore;
+    $user->signature = $signatureNameToStore;
     $user->save();
 
     // Save data into db
@@ -55,16 +67,13 @@ class AuthenticationController extends Controller
     $role = Role::where('id', $request['role'])->first();
     $user->attachRole($role);
     
-    
-    
-      $url=URL::to('https://backend.hostingladz.com/kids/admin/managers');
+    $url = URL::to('https://backend.hostingladz.com/kids/admin/managers');
 
-      $hello=Mail::send('email.userregistered', ['url' => $url, 'name' => $request->name,'email' => $request->email], function($message) use($request){
-        $message->to("kids@yopmail.com");
-        $message->subject('New location Manager Registered');
-      });
+    $hello = Mail::send('email.userregistered', ['url' => $url, 'name' => $request->name,'email' => $request->email], function($message) use($request){
+      $message->to("kids@yopmail.com");
+      $message->subject('New location Manager Registered');
+    });
 
-    
     if (Mail::failures()) {
         return response(['statusCode' => '404', 'message' => 'User did not register'], 404);
     } else {
@@ -74,30 +83,30 @@ class AuthenticationController extends Controller
     
   }
   
-   protected function validateRegisterationRequest($data) {
-        $validate = Validator::make($data, [
-            'name'    => 'required|string|max:255',
-            'email'         => 'required|string|email|max:255|unique:users',
-            'password'      => 'required',
-        ]);
+  protected function validateRegisterationRequest($data) {
+      $validate = Validator::make($data, [
+          'name'    => 'required|string|max:255',
+          'email'         => 'required|string|email|max:255|unique:users',
+          'password'      => 'required',
+          'signature'     => 'required|image'
+      ]);
 
-        return $validate;
-    }
+      return $validate;
+  }
     
-    public function uploadImage($fileData, $loc)
-    {
-      // Get file name with extension
-      $fileNameWithExt = $fileData->getClientOriginalName();
-      // Get just file name
-      $fileName = pathinfo($fileNameWithExt, PATHINFO_FILENAME);
-      // Get just extension
-      $fileExtension = $fileData->extension();
-      // File name to store
-      $fileNameToStore = time() . '.' . $fileExtension;
-      // Finally Upload Image
-      $fileData->storeAs($loc, $fileNameToStore);
+  public function uploadImage($fileData, $loc) {
+    // Get file name with extension
+    $fileNameWithExt = $fileData->getClientOriginalName();
+    // Get just file name
+    $fileName = pathinfo($fileNameWithExt, PATHINFO_FILENAME);
+    // Get just extension
+    $fileExtension = $fileData->extension();
+    // File name to store
+    $fileNameToStore = time() . '.' . $fileExtension;
+    // Finally Upload Image
+    $fileData->storeAs($loc, $fileNameToStore);
 
-      return $fileNameToStore;
+    return $fileNameToStore;
   }
 
   /**

@@ -23,22 +23,17 @@ use App\Http\Controllers\ForgotPasswordController;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-  return $request->user();
-});
+// Route::middleware('auth:api')->get('/user', function (Request $request) {
+//   return $request->user();
+// });
 
 // Public routes
-
-
 Route::post('login', [AuthenticationController::class, 'userlogin']);
 Route::post('register', [AuthenticationController::class, 'userregister']);
 Route::post('forget-password', [ForgotPasswordController::class, 'submitForgetPasswordForm']); 
 Route::post('reset-password/{token}', [ForgotPasswordController::class, 'submitResetPasswordForm'])->name('reset.password.get');
 
 Route::get('locations', [LocationController::class, 'get_all_locations'])->name('locations');
-
-
-
 
 // Protected routes
 Route::middleware(['auth:api'])->group(function () {
@@ -69,6 +64,7 @@ Route::middleware(['auth:api'])->group(function () {
       Route::get('/event/get/{id}', [EventController::class, 'details'])->name('admin.event.get');
       Route::get('/event/report/{id}', [EventController::class, 'specific_event_report'])->name('admin.event.report');
       Route::get('/closeevent/{id}', [EventController::class, 'event_close'])->name('admin.event.close');
+
       Route::get('/event/participants/{id}', [EventController::class, 'admin_event_participants'])->name('admin.event.participants');
       Route::get('/event/participants/without_pagination/{id}', [EventController::class, 'admin_event_participants_without_pagination'])->name('admin.event.participants.without_pagination');
       Route::get('/event/users', [EventController::class, 'get_users'])->name('admin.event.users');
@@ -77,7 +73,6 @@ Route::middleware(['auth:api'])->group(function () {
 
       //Meal Route
       Route::get('/get-meals', [EventController::class, 'get_meal'])->name('admin.meals');
-
 
       //User Routes
       Route::get('/users', [UserController::class, 'index'])->name('admin.users');
@@ -122,7 +117,6 @@ Route::middleware(['auth:api'])->group(function () {
       Route::post('/mark-participant-meal/{id}', [ParticipantAttendanceMealController::class, 'mark_meal'])->name('user.participants.mark_meal');
       
       Route::get('/my-info', [UserController::class, 'my_info'])->name('user.my-info.get');
-
 
       // //Event Routes
       // Route::get('/events', [EventController::class, 'index'])->name('admin.events');
