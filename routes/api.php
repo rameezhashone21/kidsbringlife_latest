@@ -81,6 +81,8 @@ Route::middleware(['auth:api'])->group(function () {
       Route::post('/user/update/{id}', [UserController::class, 'update'])->name('admin.user.update');
       Route::get('/user/get/{id}', [UserController::class, 'details'])->name('admin.user.get');
       Route::get('/user/search/{string}', [UserController::class, 'search'])->name('admin.user.search');
+
+      Route::post('/signature', [UserController::class, 'update_signature'])->name('update.signature');
     });
   });
 });

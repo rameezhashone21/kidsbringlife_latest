@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -315,5 +316,54 @@ class UserController extends Controller
     $response['message'] = implode('', $message);
     $response['status'] = 0;
     return response()->json($response, 200);
+  }
+
+  public function update_signature(Request $request) {
+
+    $validate = Validator::make($request->all(), [
+      'signature'   => 'required|image'
+    ]);
+    
+    if($validate->fails()) {
+      return response()->json([
+        'errors'  => $validate->errors(),
+        'message'  => 'unprocessable entity' 
+      ], 422);
+    }
+
+    $user = User::where('id', auth()->user()->id)->first();
+    if($user) {
+
+      if ($request->hasFile('signature')) {
+        // Save image to folder
+        $loc = '/public/signature';
+        $fileData = $request->file('signature');
+        $signatureNameToStore = $this->uploadImage($fileData, $loc);
+      } else {
+        $signatureNameToStore = null;
+      }
+
+      if($user->signature != null) File::delete(storage_path('app/public/signature/'. $user->signature));
+
+      $user->update([
+        'signature' => $signatureNameToStore
+      ]);
+
+      $user->signature_url = Storage::url('signature/'. $user->signature);
+
+      return response()->json([
+        'error'   => false,
+        'data'    => $user->toArray(),
+        'message' => 'Signature Successfully Updated.',
+        'status'  => 1,
+      ], 200);
+    } else {
+
+      return response()->json([
+        'error'   => true,
+        'message' => 'Unprocessed entity.',
+        'status'  => 0,
+      ], 422);
+    }
   }
 }
