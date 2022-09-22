@@ -19,8 +19,8 @@ class UserController extends Controller
    *
    * @return \Illuminate\Http\Response
    */
-  public function index(Request $request)
-  {
+  public function index(Request $request) {
+
     $users= User::with('roles')->with('locations')->orwhere('name','LIKE','%'.$request->q.'%')->whereHas('roles', function($q) {
         $q->whereNotIn('level', [2]);
     })->orderBy('id', 'DESC')->paginate(10);
@@ -47,8 +47,8 @@ class UserController extends Controller
    * @param  \Illuminate\Http\Request  $request
    * @return \Illuminate\Http\Response
    */
-  public function store(Request $request)
-  {
+  public function store(Request $request) {
+
     $data = $request->all();
     
      $validate = $this->validateRegisterationRequest($request->all());
@@ -102,25 +102,24 @@ class UserController extends Controller
    * @param  int  $id
    * @return \Illuminate\Http\Response
    */
-   
-    protected function validateRegisterationRequest($data) {
-        $validate = Validator::make($data, [
-            'name'    => 'required|string|max:255',
-            'email'         => 'required|string|email|max:255|unique:users',
-            'password'      => 'required',
-            'profile_photo'      => 'required',
-            'address'      => 'required|string',
-            'postal_code'      => 'required|string',
-            'state'  => 'required|string',
-            'city'  => 'required|string',
-            'phone_number'        => 'required|integer'
-        ]);
-
-        return $validate;
-    }
+  protected function validateRegisterationRequest($data) {
     
-  public function show($id)
-  {
+      $validate = Validator::make($data, [
+          'name'    => 'required|string|max:255',
+          'email'         => 'required|string|email|max:255|unique:users',
+          'password'      => 'required',
+          'profile_photo'      => 'required',
+          'address'      => 'required|string',
+          'postal_code'      => 'required|string',
+          'state'  => 'required|string',
+          'city'  => 'required|string',
+          'phone_number'        => 'required|integer'
+      ]);
+
+      return $validate;
+  }
+    
+  public function show($id) {
     //
   }
 
@@ -130,8 +129,8 @@ class UserController extends Controller
    * @param  int  $id
    * @return \Illuminate\Http\Response
    */
-  public function edit(Role $role, $id)
-  {
+  public function edit(Role $role, $id) {
+
     // Get single user details
     $user = User::where('id', $id)->first();
 
@@ -150,8 +149,7 @@ class UserController extends Controller
    * @param  int  $id
    * @return \Illuminate\Http\Response
    */
-  public function update(Request $request, $id)
-  {
+  public function update(Request $request, $id) {
       //dd($request);
     // Validate data
     $data = $request->all();
@@ -225,8 +223,7 @@ class UserController extends Controller
    * @param  int  $id
    * @return \Illuminate\Http\Response
    */
-  public function destroy($id)
-  {
+  public function destroy($id) {
 
     // delete user profile image from database
     $user = User::where('id', $id)->first();
@@ -256,8 +253,8 @@ class UserController extends Controller
    * @param  int  $id
    * @return \Illuminate\Http\Response
    */
-  public function details($id)
-  {
+  public function details($id) {
+
     $user = User::where('id', $id)->get();
     if (count($user) > 0) {
       return response(["Data" => $user, 'statusCode' => '1', 'message' => 'User Details'], 200);
@@ -272,8 +269,7 @@ class UserController extends Controller
    * @param  int  $id
    * @return \Illuminate\Http\Response
    */
-  public function my_info()
-  {
+  public function my_info() {
     $user = auth()->user();
     if (isset($user)) {
       return response(["Data" => $user, 'statusCode' => '200', 'message' => 'User Details'], 201);
@@ -289,8 +285,7 @@ class UserController extends Controller
    * @param string $loc
    * @return \Illuminate\Http\Response
    */
-  public function uploadImage($fileData, $loc)
-  {
+  public function uploadImage($fileData, $loc) {
     // Get file name with extension
     $fileNameWithExt = $fileData->getClientOriginalName();
     // Get just file name
@@ -304,13 +299,13 @@ class UserController extends Controller
 
     return $fileNameToStore;
   }
+
   /**
    * Combine errors with messages
    *
    * @param object $message
    */
-  public function sendError($message)
-  {
+  public function sendError($message) {
     $message = $message->all();
     $response['error'] = "validation_error";
     $response['message'] = implode('', $message);
@@ -365,5 +360,19 @@ class UserController extends Controller
         'status'  => 0,
       ], 422);
     }
+  }
+
+  public function profile() {
+
+    if(auth()->check()) {
+      return response()->json([
+        'message'   => 'profile',
+        'data'      => auth()->user(),
+      ]);
+    }
+
+    return response()->json([
+      'message'   => 'user not logged In.',
+    ], 400);
   }
 }

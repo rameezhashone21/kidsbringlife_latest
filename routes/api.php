@@ -38,14 +38,14 @@ Route::get('locations', [LocationController::class, 'get_all_locations'])->name(
 // Protected routes
 Route::middleware(['auth:api'])->group(function () {
 
-  //Admin Routes
+  // Admin Routes
   Route::prefix('/admin')->middleware(['checkrole:admin'])->group(function () {
     Route::prefix('/v1')->group(function () {
     
-      //Update My profile
+      // Update My profile
       Route::post('update-profile', [AuthenticationController::class, 'update_profile'])->name('update.profile');
 
-      //Locations Routes
+      // Locations Routes
       Route::get('/locations', [LocationController::class, 'index'])->name('admin.locations');
       Route::post('/location/save', [LocationController::class, 'store'])->name('admin.location.save');
       Route::delete('/location/delete/{id}', [LocationController::class, 'destroy'])->name('admin.location.delete');
@@ -55,7 +55,7 @@ Route::middleware(['auth:api'])->group(function () {
       
       Route::get('/location_without_pagination', [LocationController::class, 'get_all_locations'])->name('admin.locations.get_without_pagination');
 
-      //Event Routes
+      // Event Routes
       Route::get('/events', [EventController::class, 'index'])->name('admin.events');
       Route::get('/events_without_pagination', [EventController::class, 'get_all_events'])->name('admin.events.get_without_pagination');
       Route::post('/event/save', [EventController::class, 'store'])->name('admin.event.save');
@@ -71,10 +71,10 @@ Route::middleware(['auth:api'])->group(function () {
       Route::get('/event/assigned-users', [EventController::class, 'get_assigned_users'])->name('admin.event.assigned_users');
       Route::get('/event/search/{string}', [EventController::class, 'search'])->name('admin.event.search');
 
-      //Meal Route
+      // Meal Route
       Route::get('/get-meals', [EventController::class, 'get_meal'])->name('admin.meals');
 
-      //User Routes
+      // User Routes
       Route::get('/users', [UserController::class, 'index'])->name('admin.users');
       Route::post('/user/save', [UserController::class, 'store'])->name('admin.user.save');
       Route::delete('/user/delete/{id}', [UserController::class, 'destroy'])->name('admin.user.delete');
@@ -83,6 +83,7 @@ Route::middleware(['auth:api'])->group(function () {
       Route::get('/user/search/{string}', [UserController::class, 'search'])->name('admin.user.search');
 
       Route::post('/signature', [UserController::class, 'update_signature'])->name('update.signature');
+      Route::get('/profile', [UserController::class, 'profile'])->name('update.signature');
     });
   });
 });
